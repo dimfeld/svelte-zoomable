@@ -57,15 +57,32 @@
 </script>
 
 <style>
+  :global(body) {
+    margin: 0px;
+  }
+
+  :global(*) {
+    box-sizing: border-box;
+  }
+
   #app {
-    position: relative;
-    width: 100vh;
+    width: 100vw;
     height: 100vh;
+    display: grid;
+    place-items: center;
+  }
+
+  #view {
+    width: 95%;
+    height: 95%;
+    position: relative;
   }
 </style>
 
 <div id="app">
-  <ZoomableContainer bind:zoomManager>
-    <Items items={data} />
-  </ZoomableContainer>
+  <div id="view">
+    <ZoomableContainer bind:zoomManager>
+      <Items items={data} />
+    </ZoomableContainer>
+  </div>
 </div>

@@ -42,7 +42,7 @@ export function createZoomManager() {
     set(zoomPath) {
       zoomPath = toArray(zoomPath);
 
-      console.log({ zoomPath })
+      console.log(`Moving to ${zoomPath.join('.')}`);
 
       let commonSegments = 0;
       while(commonSegments < zoomPath.length && commonSegments < currentZoomPath.length && zoomPath[commonSegments] === currentZoomPath[commonSegments]) {
@@ -60,8 +60,9 @@ export function createZoomManager() {
 
       let finalComponentPath = zoomPath.join('.');
       let finalComponentData = components.get(finalComponentPath);
+      currentZoomPath = [...zoomPath];
       currentZoomPathStore.set({
-        path: zoomPath,
+        path: currentZoomPath,
         title: [...(finalComponentData?.title || [])]
       });
 

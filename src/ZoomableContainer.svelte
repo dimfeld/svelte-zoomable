@@ -11,4 +11,14 @@
   setContext(zoomParentContext, { id: [], fullTitle: [], title: "" });
 </script>
 
-<slot />
+<style>
+  div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<div>
+  <slot />
+</div>

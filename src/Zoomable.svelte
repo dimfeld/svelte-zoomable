@@ -20,6 +20,7 @@
 
   const zoomManager = getContext(zoomManagerContext);
   const parent = getContext(zoomParentContext);
+  console.log({ id, parent });
   const fullId = [...parent.id, id];
   const fullTitle = [...parent.fullTitle, title];
 
@@ -75,6 +76,10 @@
     z-index: var(--z-index);
   }
 
+  .overview {
+    position: relative;
+  }
+
   .hidden {
     visibility: hidden;
   }
@@ -83,6 +88,7 @@
 {#if zoomed}
   <div
     class="zoomed"
+    id={fullId.join('-') + '-zoomed'}
     class:hidden={hide}
     in:receive|local={{ key: fullId }}
     out:send|local={{ key: fullId }}>
@@ -90,11 +96,14 @@
       name="detail"
       {active}
       path={fullId}
+      title={fullTitle}
       back={() => zoomManager.set(fullId.slice(0, -1))} />
   </div>
 {:else}
   <div
+    class="overview"
     class:hidden={hide}
+    id={fullId.join('-') + '-overview'}
     on:click={handleSummaryClick}
     in:receive|local={{ key: fullId }}
     out:send|local={{ key: fullId }}>
