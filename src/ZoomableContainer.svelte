@@ -1,19 +1,14 @@
 <script>
   import { setContext } from "svelte";
-  import { createZoomManager } from "../zoomManager";
+  import {
+    createZoomManager,
+    zoomManagerContext,
+    zoomParentContext,
+  } from "./zoomManager";
 
-  setContext("zoom-parent", { id: "", fullTitle: [], title: "" });
-
-  export let zoomManager = getContext("zoom-manager");
-  if (!zoomManager) {
-    zoomManager = createZoomManager();
-    setContext("zoom-manager", zoomManager);
-  }
+  export let zoomManager = createZoomManager();
+  setContext(zoomManagerContext, zoomManager);
+  setContext(zoomParentContext, { id: [], fullTitle: [], title: "" });
 </script>
 
-<style>
-</style>
-
-<div>
-  <slot />
-</div>
+<slot />
