@@ -1,0 +1,34 @@
+{
+  "name": "svelte-zoomable",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "Daniel Imfeld",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimfeld/svelte-zoomable.git"
+  },
+  "homepage": "https://github.com/dimfeld/svelte-zoomable#readme",
+  "bugs": {
+    "url": "https://github.com/dimfeld/svelte-zoomable/issues"
+  },
+  "svelte": "src/index.js",
+  "module": "dist/index.mjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "rollup": "^2.35.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "svelte": "^3.0.0"
+  },
+  "keywords": [
+    "svelte"
+  ],
+  "files": [
+    "src",
+    "dist"
+  ]
+}
