@@ -10,7 +10,6 @@
     flex-direction: column;
     flex-wrap: wrap;
     align-items: stretch;
-    padding: 0.5rem 2ch;
     height: 100%;
     gap: 10px;
   }

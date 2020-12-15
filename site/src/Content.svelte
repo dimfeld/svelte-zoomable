@@ -18,6 +18,7 @@
   .detail {
     width: 100%;
     height: 100%;
+    padding: 0.5rem 2ch;
   }
 
   .overview {
@@ -45,7 +46,7 @@
   </div>
 
   <div class="detail" slot="detail" let:back let:title>
-    <button type="button" on:click={back}>Back to
+    <button type="button" style="margin-bottom:1rem" on:click={back}>Back to
       {title.slice(0, -1).join(' > ') || 'top'}</button>
     {#if data.children}
       <Items items={data.children} />

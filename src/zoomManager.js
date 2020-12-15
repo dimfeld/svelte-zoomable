@@ -3,9 +3,9 @@ export const zoomManagerContext = Symbol('zoom-manager');
 export const zoomParentContext = Symbol('zoom-parent');
 
 function toArray(zoomPath) {
-  if(typeof zoomPath === 'string') {
+  if (typeof zoomPath === 'string') {
     zoomPath = zoomPath.split('.');
-    if(zoomPath[0] === '') {
+    if (zoomPath[0] === '') {
       zoomPath = [];
     }
   }
@@ -27,7 +27,14 @@ export function createZoomManager() {
       zoomed,
       active,
     };
-  }
+  };
+
+  const updateComponent = (pathArray, zoomed, active) => {
+    let path = pathArray.join('.');
+    let componentData = components.get(path);
+    // console.log(`${path} zoomed ${zoomed} active ${active}`);
+    componentData?.callback({ zoomed, active });
+  };
 
   return {
     ...currentZoomPathStore,
@@ -42,20 +49,20 @@ export function createZoomManager() {
     set(zoomPath) {
       zoomPath = toArray(zoomPath);
 
-      console.log(`Moving to ${zoomPath.join('.')}`);
+      // console.log(`Moving to ${zoomPath.join('.')}`);
 
       let commonSegments = 0;
-      while(commonSegments < zoomPath.length && commonSegments < currentZoomPath.length && zoomPath[commonSegments] === currentZoomPath[commonSegments]) {
+      while (
+        commonSegments < zoomPath.length &&
+        commonSegments < currentZoomPath.length &&
+        zoomPath[commonSegments] === currentZoomPath[commonSegments]
+      ) {
         commonSegments++;
       }
 
       // Unzoom everything in currentZoomPath that doesn't match the new path.
-      for(let i = currentZoomPath.length - 1; i >= commonSegments; --i) {
-        let componentPath = currentZoomPath.slice(0, i + 1).join('.');
-        let componentData = components.get(componentPath);
-        if(componentData) {
-          componentData.callback({ zoomed: false, active: false });
-        }
+      for (let i = currentZoomPath.length - 1; i >= commonSegments; --i) {
+        updateComponent(currentZoomPath.slice(0, i + 1), false, false);
       }
 
       let finalComponentPath = zoomPath.join('.');
@@ -63,25 +70,17 @@ export function createZoomManager() {
       currentZoomPath = [...zoomPath];
       currentZoomPathStore.set({
         path: currentZoomPath,
-        title: [...(finalComponentData?.title || [])]
+        title: [...(finalComponentData?.title || [])],
       });
 
-      if(commonSegments < zoomPath.length) {
-
-        for(let i = commonSegments; i< zoomPath.length - 1; ++i) {
-          let componentPath = zoomPath.slice(0, i).join('.');
-          let componentData = components.get(componentPath);
-          if(componentData) {
-            componentData.callback({ zoomed: true, active: i === zoomPath.length - 1});
-          }
-        }
+      for (let i = commonSegments; i < zoomPath.length; ++i) {
+        updateComponent(zoomPath.slice(0, i), true, false);
       }
 
-      // We moved up the zoom tree but not into anything else, so notify the newly-active component.
-      if(finalComponentData) {
+      // Notify the newly-active component.
+      if (finalComponentData) {
         finalComponentData.callback({ zoomed: true, active: true });
       }
-
-    }
-  }
+    },
+  };
 }

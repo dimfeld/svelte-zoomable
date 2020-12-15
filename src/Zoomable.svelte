@@ -20,7 +20,6 @@
 
   const zoomManager = getContext(zoomManagerContext);
   const parent = getContext(zoomParentContext);
-  console.log({ id, parent });
   const fullId = [...parent.id, id];
   const fullTitle = [...parent.fullTitle, title];
 
@@ -49,7 +48,7 @@
             dispatch("zoom-out");
           }
         }
-        console.log(`${fullId.join(".")}: active ${active}, zoomed ${zoomed}`);
+        // console.log(`${fullId.join(".")}: active ${active}, zoomed ${zoomed}`);
       },
     });
 
@@ -62,26 +61,24 @@
     }
   }
 
-  $: hide = !active && $zoomManager.path.join(".") !== parent.id.join(".");
+  $: hide = $zoomManager.path.join(".") !== parent.id.join(".");
 </script>
 
 <style>
   .zoomed {
     position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-    --z-index: calc(var(--z-index, 0) + 1);
-    z-index: var(--z-index);
+    top: var(--zoomed-top, 0px);
+    bottom: var(--zoomed-bottom, 0px);
+    left: var(--zoomed-left, 0px);
+    right: var(--zoomed-right, 0px);
   }
 
   .overview {
     position: relative;
   }
 
-  .hidden {
-    visibility: hidden;
+  .inactive {
+    display: none;
   }
 </style>
 
@@ -89,7 +86,6 @@
   <div
     class="zoomed"
     id={fullId.join('-') + '-zoomed'}
-    class:hidden={hide}
     in:receive|local={{ key: fullId }}
     out:send|local={{ key: fullId }}>
     <slot
@@ -102,7 +98,7 @@
 {:else}
   <div
     class="overview"
-    class:hidden={hide}
+    class:inactive={hide}
     id={fullId.join('-') + '-overview'}
     on:click={handleSummaryClick}
     in:receive|local={{ key: fullId }}
