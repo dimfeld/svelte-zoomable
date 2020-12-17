@@ -1,11 +1,11 @@
 <script>
-  import Zoomable from "../src/Zoomable.svelte";
-  import Items from "./Items.svelte";
+  import Zoomable from '../../src/Zoomable.svelte';
+  import Items from './Items.svelte';
 
   export let data;
 
   function dashes(c, max = 20) {
-    return new Array(c.length).fill("-").join("").slice(0, max);
+    return new Array(c.length).fill('-').join('').slice(0, max);
   }
 </script>
 
@@ -18,7 +18,15 @@
   .detail {
     width: 100%;
     height: 100%;
-    padding: 0.5rem 2ch;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detail > button {
+    margin-bottom: 1rem;
+    align-self: start;
   }
 
   .overview {
@@ -46,7 +54,7 @@
   </div>
 
   <div class="detail" slot="detail" let:back let:title>
-    <button type="button" style="margin-bottom:1rem" on:click={back}>Back to
+    <button type="button" on:click={back}>Back to
       {title.slice(0, -1).join(' > ') || 'top'}</button>
     {#if data.children}
       <Items items={data.children} />

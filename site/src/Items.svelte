@@ -1,5 +1,5 @@
 <script>
-  import Content from "./Content.svelte";
+  import Content from './Content.svelte';
 
   export let items;
 </script>
@@ -10,8 +10,8 @@
     flex-direction: column;
     flex-wrap: wrap;
     align-items: stretch;
-    height: 100%;
-    gap: 10px;
+    gap: 1rem;
+    flex-grow: 1;
   }
 </style>
 

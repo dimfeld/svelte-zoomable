@@ -1,12 +1,14 @@
 <script>
-  import { crossfade } from "svelte/transition";
+  import { crossfade } from 'svelte/transition';
   import {
     onMount,
     getContext,
     setContext,
     createEventDispatcher,
-  } from "svelte";
-  import { zoomManagerContext, zoomParentContext } from "./zoomManager";
+  } from 'svelte';
+  import { cubicIn, cubicOut } from 'svelte/easing';
+  import { zoomTransition, overview, detail } from './transition';
+  import { zoomManagerContext, zoomParentContext } from './zoomManager';
 
   export let id;
   export let title;
@@ -22,6 +24,7 @@
   const parent = getContext(zoomParentContext);
   const fullId = [...parent.id, id];
   const fullTitle = [...parent.fullTitle, title];
+  const fullIdString = fullId.join('.');
 
   setContext(zoomParentContext, {
     id: fullId,
@@ -29,8 +32,8 @@
     fullTitle,
   });
 
-  const [send, receive] = crossfade({
-    duration: 400,
+  const [send, receive] = zoomTransition({
+    duration: 200,
   });
 
   onMount(() => {
@@ -43,9 +46,9 @@
         if (zoomed !== newZoom) {
           zoomed = newZoom;
           if (newZoom) {
-            dispatch("zoom-in");
+            dispatch('zoom-in');
           } else {
-            dispatch("zoom-out");
+            dispatch('zoom-out');
           }
         }
         // console.log(`${fullId.join(".")}: active ${active}, zoomed ${zoomed}`);
@@ -61,7 +64,7 @@
     }
   }
 
-  $: hide = $zoomManager.path.join(".") !== parent.id.join(".");
+  $: hide = $zoomManager.path.join('.') !== parent.id.join('.');
 </script>
 
 <style>
@@ -86,8 +89,8 @@
   <div
     class="zoomed"
     id={fullId.join('-') + '-zoomed'}
-    in:receive|local={{ key: fullId }}
-    out:send|local={{ key: fullId }}>
+    in:receive|local={{ key: fullIdString, style: detail, easing: cubicIn }}
+    out:send|local={{ key: fullIdString, style: detail, easing: cubicOut }}>
     <slot
       name="detail"
       {active}
@@ -95,14 +98,13 @@
       title={fullTitle}
       back={() => zoomManager.set(fullId.slice(0, -1))} />
   </div>
-{:else}
+{:else if !hide}
   <div
     class="overview"
-    class:inactive={hide}
     id={fullId.join('-') + '-overview'}
     on:click={handleSummaryClick}
-    in:receive|local={{ key: fullId }}
-    out:send|local={{ key: fullId }}>
+    in:receive|local={{ key: fullIdString, style: overview, easing: cubicOut }}
+    out:send|local={{ key: fullIdString, style: overview, easing: cubicIn }}>
     <slot name="overview" zoom={() => zoomManager.set(fullId)} />
   </div>
 {/if}
