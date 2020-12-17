@@ -1,14 +1,14 @@
 <script>
-  import { setContext } from "svelte";
+  import { setContext } from 'svelte';
   import {
     createZoomManager,
     zoomManagerContext,
     zoomParentContext,
-  } from "./zoomManager";
+  } from './zoomManager';
 
   export let zoomManager = createZoomManager();
   setContext(zoomManagerContext, zoomManager);
-  setContext(zoomParentContext, { id: [], fullTitle: [], title: "" });
+  setContext(zoomParentContext, { id: [], fullTitle: [], title: '' });
 </script>
 
 <style>
@@ -16,6 +16,7 @@
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
   }
 </style>
 

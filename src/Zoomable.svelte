@@ -7,7 +7,7 @@
     createEventDispatcher,
   } from 'svelte';
   import { cubicIn, cubicOut } from 'svelte/easing';
-  import { zoomTransition, overview, detail } from './transition';
+  import { send, receive, overview, detail } from './transition';
   import { zoomManagerContext, zoomParentContext } from './zoomManager';
 
   export let id;
@@ -24,16 +24,13 @@
   const parent = getContext(zoomParentContext);
   const fullId = [...parent.id, id];
   const fullTitle = [...parent.fullTitle, title];
+  const parentIdString = parent.id.join('.');
   const fullIdString = fullId.join('.');
 
   setContext(zoomParentContext, {
     id: fullId,
     title,
     fullTitle,
-  });
-
-  const [send, receive] = zoomTransition({
-    duration: 200,
   });
 
   onMount(() => {
@@ -89,8 +86,8 @@
   <div
     class="zoomed"
     id={fullId.join('-') + '-zoomed'}
-    in:receive|local={{ key: fullIdString, style: detail, easing: cubicIn }}
-    out:send|local={{ key: fullIdString, style: detail, easing: cubicOut }}>
+    in:receive|local={{ key: fullIdString, parent: parentIdString, isDetail: true, style: detail, easing: cubicIn }}
+    out:send|local={{ key: fullIdString, parent: parentIdString, isDetail: true, style: detail, easing: cubicOut }}>
     <slot
       name="detail"
       {active}
@@ -103,8 +100,8 @@
     class="overview"
     id={fullId.join('-') + '-overview'}
     on:click={handleSummaryClick}
-    in:receive|local={{ key: fullIdString, style: overview, easing: cubicOut }}
-    out:send|local={{ key: fullIdString, style: overview, easing: cubicIn }}>
+    in:receive|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicOut }}
+    out:send|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicIn }}>
     <slot name="overview" zoom={() => zoomManager.set(fullId)} />
   </div>
 {/if}
