@@ -102,6 +102,6 @@
     on:click={handleSummaryClick}
     in:receive|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicOut }}
     out:send|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicIn }}>
-    <slot name="overview" zoom={() => zoomManager.set(fullId)} />
+    <slot path={fullId} name="overview" zoom={() => zoomManager.set(fullId)} />
   </div>
 {/if}

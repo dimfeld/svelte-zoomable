@@ -10,8 +10,8 @@
     flex-direction: column;
     flex-wrap: wrap;
     align-items: stretch;
-    gap: 1rem;
     flex-grow: 1;
+    max-height: 100%;
   }
 </style>
 

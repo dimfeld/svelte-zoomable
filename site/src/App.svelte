@@ -76,10 +76,9 @@
   }
 
   #view {
-    width: 95%;
-    height: 95%;
     position: relative;
-    place-self: center;
+    place-self: stretch;
+    margin: 0px 1rem 1rem;
   }
 
   #title {

@@ -77,7 +77,7 @@ function flyAwayFrom(fromDetail, fromOverview, node) {
   let distanceX =
     current.left <= fromOverview.left
       ? fromDetail.left - fromOverview.left
-      : fromDetail.right - fromOVerview.right;
+      : fromDetail.right - fromOverview.right;
 
   console.log({ distanceX, distanceY });
 

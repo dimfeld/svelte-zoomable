@@ -7,6 +7,15 @@
   function dashes(c, max = 20) {
     return new Array(c.length).fill('-').join('').slice(0, max);
   }
+
+  // $: bgColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
+  //   Math.random() * 255
+  // }`;
+
+  function bgColor(path) {
+    let l = 95 - path.length * 10;
+    return `hsl(0, 0%, ${l}%)`;
+  }
 </script>
 
 <style>
@@ -40,7 +49,11 @@
 </style>
 
 <Zoomable id={data.id} title={data.title}>
-  <div class="overview" slot="overview">
+  <div
+    class="overview"
+    slot="overview"
+    let:path
+    style="background-color:{bgColor(path)}">
     {data.title}
     {#if data.children}
       {#each data.children.map((c) => c.title) as c}
@@ -53,7 +66,13 @@
     {/if}
   </div>
 
-  <div class="detail" slot="detail" let:back let:title>
+  <div
+    class="detail"
+    slot="detail"
+    let:path
+    style="background-color:{bgColor(path)}"
+    let:back
+    let:title>
     <button type="button" on:click={back}>Back to
       {title.slice(0, -1).join(' > ') || 'top'}</button>
     {#if data.children}
