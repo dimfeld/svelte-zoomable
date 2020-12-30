@@ -9,6 +9,7 @@
   import { cubicIn, cubicOut } from 'svelte/easing';
   import { send, receive, overview, detail } from './transition';
   import { zoomManagerContext, zoomParentContext } from './zoomManager';
+  import { style } from 'svelte-style-action';
 
   export let id;
   export let title;
@@ -18,12 +19,21 @@
   /** Set to false to handle the zoom manually */
   export let zoomInOnClick = true;
 
+  /** Class names to apply to the overview div element*/
+  export let overviewClass = '';
+  /** Styles to apply to the overview div element, as a string or an object */
+  export let overviewStyle = undefined;
+  /** Class names to apply to the detail div element*/
+  export let detailClass = '';
+  /** Styles to apply to the detail div element, as a string or an object */
+  export let detailStyle = undefined;
+
   const dispatch = createEventDispatcher();
 
   const zoomManager = getContext(zoomManagerContext);
   const parent = getContext(zoomParentContext);
-  const fullId = [...parent.id, id];
-  const fullTitle = [...parent.fullTitle, title];
+  export const fullId = [...parent.id, id];
+  export const fullTitle = [...parent.fullTitle, title];
   const parentIdString = parent.id.join('.');
   const fullIdString = fullId.join('.');
 
@@ -84,8 +94,9 @@
 
 {#if zoomed}
   <div
-    class="zoomed"
+    class="zoomed {detailClass}"
     id={fullId.join('-') + '-zoomed'}
+    use:style={detailStyle}
     in:receive|local={{ key: fullIdString, parent: parentIdString, isDetail: true, style: detail, easing: cubicIn }}
     out:send|local={{ key: fullIdString, parent: parentIdString, isDetail: true, style: detail, easing: cubicOut }}>
     <slot
@@ -97,7 +108,8 @@
   </div>
 {:else if !hide}
   <div
-    class="overview"
+    class="overview {overviewClass}"
+    use:style={overviewStyle}
     id={fullId.join('-') + '-overview'}
     on:click={handleSummaryClick}
     in:receive|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicOut }}

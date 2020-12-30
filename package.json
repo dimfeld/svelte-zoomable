@@ -30,5 +30,8 @@
   "files": [
     "src",
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "svelte-style-action": "^0.0.3"
+  }
 }
