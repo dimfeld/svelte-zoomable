@@ -24,7 +24,7 @@ export function detail(from, node) {
 
   const style = getComputedStyle(node);
   const opacity = +style.opacity;
-  const transform = style.transform === 'none' ? '' : style.transform;
+  const originalTransform = style.transform === 'none' ? '' : style.transform;
 
   let topStart = from.top - to.top;
   let topEnd = 0;
@@ -51,11 +51,13 @@ export function detail(from, node) {
       let left = leftStart + t * dLeft + 'px';
       let right = rightStart + t * dRight + 'px';
 
-      let clipRect = `clip-path: polygon(${left} ${top}, ${right} ${top}, ${right} ${bottom}, ${left} ${bottom})`;
+      let clipRect = `clip-path: polygon(0px 0px, ${right} 0px, ${right} ${bottom}, 0px ${bottom})`;
+      let transform = `transform: ${originalTransform} translate(${left} ${top})`;
 
       let result = [
-        // opacityStyle,
+        opacityStyle,
         clipRect,
+        transform,
         // 'background-color: hsla(0, 0%, 95%)',
       ]
         .filter(Boolean)
@@ -81,11 +83,21 @@ function flyAwayFrom(fromDetail, fromOverview, node) {
 
   console.log({ distanceX, distanceY });
 
+  const style = getComputedStyle(node);
+  const opacity = +style.opacity;
+
+  const basePosition = `position:absolute;top:${current.top}px;left:${current.left}px`;
+
   return {
     css: (t, u) => {
       let x = distanceX * u;
       let y = distanceY * u;
-      let result = `transform: translate(${x}px, ${y}px)`;
+      let opacityStyle = `opacity: ${t * opacity}`;
+      let result = [
+        basePosition,
+        `transform: translate(${x}px, ${y}px)`,
+        opacityStyle,
+      ].join(';');
       console.log(result);
       return result;
     },
