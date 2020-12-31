@@ -2,7 +2,7 @@
   "name": "svelte-zoomable",
   "version": "0.0.2",
   "license": "MIT",
-  "author": "Daniel Imfeld",
+  "author": "Daniel Imfeld <dimfeld>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dimfeld/svelte-zoomable.git"
