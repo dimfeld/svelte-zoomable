@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 export const zoomManagerContext = Symbol('zoom-manager');
 export const zoomParentContext = Symbol('zoom-parent');
+export const zoomTransitionContext = Symbol('zoom-transition');
 
 function toArray(zoomPath) {
   if (typeof zoomPath === 'string') {

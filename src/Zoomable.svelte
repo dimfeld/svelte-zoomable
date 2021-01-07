@@ -7,8 +7,8 @@
     createEventDispatcher,
   } from 'svelte';
   import { cubicIn, cubicOut } from 'svelte/easing';
-  import { send, receive, overview, detail } from './transition';
-  import { zoomManagerContext, zoomParentContext } from './zoomManager';
+  import { send, receive } from './transition';
+  import { zoomManagerContext, zoomParentContext, zoomTransitionContext } from './zoomManager';
   import { style } from 'svelte-style-action';
 
   export let id;
@@ -31,6 +31,7 @@
   const dispatch = createEventDispatcher();
 
   const zoomManager = getContext(zoomManagerContext);
+  const transitionPreset = getContext(zoomTransitionContext);
   const parent = getContext(zoomParentContext);
   export const fullId = [...parent.id, id];
   export const fullTitle = [...parent.fullTitle, title];
@@ -97,8 +98,8 @@
     class="zoomed {detailClass}"
     id={fullId.join('-') + '-zoomed'}
     use:style={detailStyle}
-    in:receive|local={{ key: fullIdString, parent: parentIdString, isDetail: true, style: detail, easing: cubicIn }}
-    out:send|local={{ key: fullIdString, parent: parentIdString, isDetail: true, style: detail, easing: cubicOut }}>
+    in:receive|local={{ key: fullIdString, parent: parentIdString, isDetail: true, easing: cubicIn, preset: $transitionPreset }}
+    out:send|local={{ key: fullIdString, parent: parentIdString, isDetail: true, easing: cubicOut, preset: $transitionPreset }}>
     <slot
       name="detail"
       {active}
@@ -112,8 +113,8 @@
     use:style={overviewStyle}
     id={fullId.join('-') + '-overview'}
     on:click={handleSummaryClick}
-    in:receive|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicOut }}
-    out:send|local={{ key: fullIdString, parent: parentIdString, style: overview, easing: cubicIn }}>
+    in:receive|local={{ key: fullIdString, parent: parentIdString, easing: cubicOut, preset: $transitionPreset }}
+    out:send|local={{ key: fullIdString, parent: parentIdString, easing: cubicIn, preset: $transitionPreset }}>
     <slot path={fullId} name="overview" zoom={() => zoomManager.set(fullId)} />
   </div>
 {/if}

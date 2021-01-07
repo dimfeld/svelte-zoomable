@@ -1,112 +1,39 @@
-/*
-Overview content fades in/out in place
-detail content does the crossfade style change?
-*/
+import * as transitions from './transition_executors';
+import * as schedules from './transition_schedulers';
 
-/** Simple opacity fade for zooming overview screen  */
-export function overview(_from, node) {
-  const style = getComputedStyle(node);
-  const opacity = +style.opacity;
-  return {
-    css: (t, u) => `opacity: ${t * opacity}`,
-  };
+/** Presets for how the transitions work */
+export const presets = {
+  /** The selected detail expands outward while the other
+   * overviews fly away from it.
+   * This is still being tweaked and doesn't look too great yet. */
+  zoomExperimental: {
+    selectedOverview: transitions.fade,
+    detail: transitions.zoomClipRect,
+    otherOverviews: transitions.flyAwayFrom,
+    schedule: schedules.allTogether,
+    defaultDuration: 400,
+  },
+  /** Simple fade */
+  fade: {
+    detail: transitions.fade,
+    selectedOverview: transitions.fade,
+    otherOverviews: transitions.fade,
+    schedule: schedules.allTogether,
+    defaultDuration: 200,
+  },
+  crossfade: {
+    detail: transitions.crossfade,
+    selectedOverview: transitions.crossfade,
+    otherOverviews: transitions.fade,
+    schedule: schedules.allTogether,
+    defaultDuration: 200,
+  }
 }
 
-function none() {
-  return {
-    css: () => '',
-  };
-}
-
-/** detail transition appears to expand or contract between overview node and full area of zoomable container */
-export function detail(from, node) {
-  let to = node.getBoundingClientRect();
-
-  const style = getComputedStyle(node);
-  const opacity = +style.opacity;
-  const originalTransform = style.transform === 'none' ? '' : style.transform;
-
-  let topStart = from.top - to.top;
-  let topEnd = 0;
-  let dTop = topEnd - topStart;
-
-  let bottomStart = topStart + from.height;
-  let bottomEnd = to.height;
-  let dBottom = bottomEnd - bottomStart;
-
-  let leftStart = from.left - to.left;
-  let leftEnd = 0;
-  let dLeft = leftEnd - leftStart;
-
-  let rightStart = leftStart + from.width;
-  let rightEnd = to.width;
-  let dRight = rightEnd - rightStart;
-
-  return {
-    css: (t, u) => {
-      let opacityStyle = `opacity: ${t * opacity}`;
-
-      let top = topStart + t * dTop + 'px';
-      let bottom = bottomStart + t * dBottom + 'px';
-      let left = leftStart + t * dLeft + 'px';
-      let right = rightStart + t * dRight + 'px';
-
-      let clipRect = `clip-path: polygon(0px 0px, ${right} 0px, ${right} ${bottom}, 0px ${bottom})`;
-      let transform = `transform: ${originalTransform} translate(${left} ${top})`;
-
-      let result = [
-        opacityStyle,
-        clipRect,
-        transform,
-        // 'background-color: hsla(0, 0%, 95%)',
-      ]
-        .filter(Boolean)
-        .join(';');
-      // console.log(t, result);
-      return result;
-    },
-  };
-}
-
-/** The siblings overview nodes all move away from the expanding detail node */
-function flyAwayFrom(fromDetail, fromOverview, node) {
-  let current = node.getBoundingClientRect();
-
-  let distanceY =
-    current.top <= fromOverview.top
-      ? fromDetail.top - fromOverview.top
-      : fromDetail.bottom - fromOverview.bottom;
-  let distanceX =
-    current.left <= fromOverview.left
-      ? fromDetail.left - fromOverview.left
-      : fromDetail.right - fromOverview.right;
-
-  console.log({ distanceX, distanceY });
-
-  const style = getComputedStyle(node);
-  const opacity = +style.opacity;
-
-  const basePosition = `position:absolute;top:${current.top}px;left:${current.left}px`;
-
-  return {
-    css: (t, u) => {
-      let x = distanceX * u;
-      let y = distanceY * u;
-      let opacityStyle = `opacity: ${t * opacity}`;
-      let result = [
-        basePosition,
-        `transform: translate(${x}px, ${y}px)`,
-        opacityStyle,
-      ].join(';');
-      console.log(result);
-      return result;
-    },
-  };
-}
 
 export function zoomTransition({ delay, duration, easing } = {}) {
   delay = delay ?? 0;
-  duration = duration ?? 400;
+  duration = duration ?? preset.defaultDuration;
 
   let sending = new Map();
   let receiving = new Map();
@@ -114,7 +41,10 @@ export function zoomTransition({ delay, duration, easing } = {}) {
   let siblingData = new Map();
 
   function transition(items, counterparts) {
+    let isIncoming = items === receiving;
+
     return (node, params) => {
+      let preset = params.preset ?? presets.fade;
       let rect = node.getBoundingClientRect();
       items.set(params.key, rect);
 
@@ -140,6 +70,7 @@ export function zoomTransition({ delay, duration, easing } = {}) {
           d.detail = {
             id: params.key,
             rect,
+            incoming: isIncoming,
           };
         } else {
           console.log(
@@ -170,7 +101,15 @@ export function zoomTransition({ delay, duration, easing } = {}) {
                 detailRect,
                 zoomingOverviewRect,
               });
-              style = flyAwayFrom(detailRect, zoomingOverviewRect, node);
+
+              let executorParams = {
+                detailRect,
+                activeOverviewRect: zoomingOverviewRect,
+                otherRect: null,
+                node,
+              };
+
+              style = preset.otherOverviews(executorParams);
             }
 
             d.refCount--;
@@ -181,7 +120,22 @@ export function zoomTransition({ delay, duration, easing } = {}) {
         }
 
         if (!style) {
-          style = rect ? params.style(rect, node) : none();
+          if(rect) {
+            let nodeRect = node.getBoundingClientRect();
+            let executorParams = {
+              detailRect: params.isDetail ? nodeRect : rect,
+              activeOverviewRect: params.isDetail ? rect : nodeRect,
+              otherRect: rect,
+              node,
+            };
+            // This is one of the "active" elements
+            style = params.isDetail ?
+              preset.detail(executorParams) :
+              preset.selectedOverview(executorParams);
+          } else {
+            // There is no other element, so just do nothing.
+            style = none();
+          }
         }
 
         return {
