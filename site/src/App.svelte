@@ -56,17 +56,44 @@
     },
   ];
 
-  let zoomPresetId = 'crossfade';
+  let zoomPresetId = 'mergeSiblingsSeries';
   const zoomPresetIds = {
     crossfade: 'Crossfade',
     fade: 'Simple Fade',
     zoomExperimental: 'Experimental WIP Zoom',
+    mergeSiblingsParallel: 'Parallel Sibling Merge',
+    mergeSiblingsSeries: 'Serial Sibling Merge',
   };
 
   $: zoomPreset = presets[zoomPresetId];
 
   let zoomManager;
 </script>
+
+<div id="app">
+  <header>
+    <h3 id="title">
+      {#if $zoomManager?.path.length === 0}
+        Click to zoom
+      {:else if $zoomManager?.title}{$zoomManager.title.join(' > ')}{/if}
+    </h3>
+
+    <label>
+      <span>Choose a Zoom Preset</span>
+      <select bind:value={zoomPresetId}>
+        {#each Object.entries(zoomPresetIds) as [id, label]}
+          <option value={id}>{label}</option>
+        {/each}
+      </select>
+    </label>
+  </header>
+
+  <main>
+    <ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>
+      <Items items={data} />
+    </ZoomableContainer>
+  </main>
+</div>
 
 <style>
   :global(body) {
@@ -103,29 +130,3 @@
     margin: 5px 10px;
   }
 </style>
-
-<div id="app">
-
-  <header>
-    <h3 id="title">
-      {#if $zoomManager?.path.length === 0}
-        Click to zoom
-      {:else if $zoomManager?.title}{$zoomManager.title.join(' > ')}{/if}
-    </h3>
-
-    <label>
-      <span>Choose a Zoom Preset</span>
-      <select bind:value={zoomPresetId}>
-        {#each Object.entries(zoomPresetIds) as [id, label]}
-          <option value={id}>{label}</option>
-        {/each}
-      </select>
-    </label>
-  </header>
-
-  <main>
-    <ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>
-      <Items items={data} />
-    </ZoomableContainer>
-  </main>
-</div>

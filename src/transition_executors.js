@@ -1,9 +1,25 @@
+import { transition_in } from 'svelte/internal';
+
+function ramp(start, end, cb) {
+  return (t, u) => {
+    if (t <= start) {
+      t = 0;
+    } else if (t >= end) {
+      t = 1;
+    } else {
+      t = (t - start) / (end - start);
+    }
+
+    return cb(t, 1 - t);
+  };
+}
+
 /** Simple opacity fade for zooming overview screen  */
-export function fade({node}) {
+export function fade({ node, start, end }) {
   const style = getComputedStyle(node);
   const opacity = +style.opacity;
   return {
-    css: (t, u) => `opacity: ${t * opacity}`,
+    css: ramp(start, end, (t, u) => `opacity: ${t * opacity}`),
   };
 }
 
@@ -13,8 +29,10 @@ export function none() {
   };
 }
 
-/** detail transition appears to expand or contract between overview node and full area of zoomable container */
-export function zoomClipRect({ otherRect: from, node }) {
+/** detail transition appears to expand or contract between overview node and full area of zoomable container.
+ * I'm still experimenting with getting this to look good.
+ */
+export function zoomClipRect({ otherRect: from, node, start, end }) {
   let to = node.getBoundingClientRect();
 
   const style = getComputedStyle(node);
@@ -38,7 +56,7 @@ export function zoomClipRect({ otherRect: from, node }) {
   let dRight = rightEnd - rightStart;
 
   return {
-    css: (t, u) => {
+    css: ramp(start, end, (t, u) => {
       let opacityStyle = `opacity: ${t * opacity}`;
 
       let top = topStart + t * dTop + 'px';
@@ -59,7 +77,7 @@ export function zoomClipRect({ otherRect: from, node }) {
         .join(';');
       // console.log(t, result);
       return result;
-    },
+    }),
   };
 }
 
@@ -67,7 +85,7 @@ export function zoomClipRect({ otherRect: from, node }) {
  * out and modified slightly to work with the rest of these
  * transition runners.
  */
-export function crossfade({otherRect, activeOverviewRect, node}) {
+export function crossfade({ otherRect, activeOverviewRect, node, start, end }) {
   const from = otherRect || activeOverviewRect;
   const to = node.getBoundingClientRect();
   const dx = from.left - to.left;
@@ -81,16 +99,28 @@ export function crossfade({otherRect, activeOverviewRect, node}) {
   const opacity = +style.opacity;
 
   return {
-    css: (t, u) => `
+    css: ramp(
+      start,
+      end,
+      (t, u) => `
       opacity: ${t * opacity};
       transform-origin: top left;
-      transform: ${transform} translate(${u * dx}px,${u * dy}px) scale(${t + (1-t) * dw}, ${t + (1-t) * dh});
+      transform: ${transform} translate(${u * dx}px,${u * dy}px) scale(${
+        t + (1 - t) * dw
+      }, ${t + (1 - t) * dh});
     `
+    ),
   };
 }
 
 /** The siblings overview nodes all move away from the expanding detail node */
-export function flyAwayFrom({detailRect: fromDetail, activeOverviewRect: fromOverview, node}) {
+export function flyAwayFrom({
+  detailRect: fromDetail,
+  activeOverviewRect: fromOverview,
+  node,
+  start,
+  end,
+}) {
   let current = node.getBoundingClientRect();
 
   let distanceY =
@@ -110,7 +140,7 @@ export function flyAwayFrom({detailRect: fromDetail, activeOverviewRect: fromOve
   const basePosition = `position:absolute;top:${current.top}px;left:${current.left}px`;
 
   return {
-    css: (t, u) => {
+    css: ramp(start, end, (t, u) => {
       let x = distanceX * u;
       let y = distanceY * u;
       let opacityStyle = `opacity: ${t * opacity}`;
@@ -121,6 +151,41 @@ export function flyAwayFrom({detailRect: fromDetail, activeOverviewRect: fromOve
       ].join(';');
       // console.log(result);
       return result;
-    },
+    }),
+  };
+}
+
+/** Fly into the selected overview */
+export function flyIntoSelected({
+  activeOverviewRect: toOverview,
+  node,
+  start,
+  end,
+}) {
+  const current = node.getBoundingClientRect();
+  const style = getComputedStyle(node);
+  const opacity = +style.opacity;
+
+  let currentCenterX = (current.right + current.left) / 2;
+  let currentCenterY = (current.top + current.bottom) / 2;
+
+  let destCenterX = (toOverview.right + toOverview.left) / 2;
+  let destCenterY = (toOverview.top + toOverview.bottom) / 2;
+
+  let distanceX = destCenterX - currentCenterX;
+  let distanceY = destCenterY - currentCenterY;
+
+  return {
+    css: ramp(start, end, (t, u) => {
+      let x = distanceX * u;
+      let y = distanceY * u;
+
+      let opacityStyle = `opacity: ${t * opacity}`;
+      let result = [opacityStyle, `transform: translate(${x}px, ${y}px)`].join(
+        ';'
+      );
+
+      return result;
+    }),
   };
 }
