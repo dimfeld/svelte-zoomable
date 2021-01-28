@@ -5,7 +5,12 @@ This is a component for providing UI that can zoom into different levels of deta
 More docs coming soon, but you can see an example in [this Svelte REPL](https://svelte.dev/repl/58dfe87756ee4db897c281b52fdef7b7?version=3.31.0);
 
 ```svelte
-<ZoomableContainer>
+<script>
+  let zoomManager;
+</script>
+
+<h3><Breadcrumbs {zoomManager} /></h3>
+<ZoomableContainer bind:zoomManager>
   {#each data as item}
     <Zoomable id={item.id} title={item.title}>
 

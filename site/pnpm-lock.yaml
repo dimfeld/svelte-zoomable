@@ -1,12 +1,17 @@
 dependencies:
+  faker: 5.2.0
   svelte: 3.31.2
+  tinro: 0.5.9
 devDependencies:
   '@snowpack/plugin-dotenv': 2.0.5
   '@snowpack/plugin-svelte': 3.4.1_svelte@3.31.2
   '@snowpack/web-test-runner-plugin': 0.1.5_514cdb5b3bd43be7bc36981e71b23030
   '@testing-library/svelte': 3.0.3_svelte@3.31.2
+  '@types/faker': 5.1.5
   '@web/test-runner': 0.10.2
   chai: 4.2.0
+  prettier: 2.2.1
+  prettier-plugin-svelte: 2.1.1_prettier@2.2.1+svelte@3.31.2
   snowpack: 2.18.5
 lockfileVersion: 5.2
 packages:
@@ -365,6 +370,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-SDzEIZInC4sivGIFY4Sz1GG6J9UObPwCInYJjko2jzOf/Imx/dlpume6Xxwj1ORL82tBbmN4cPDIDkLbWHk9hw==
+  /@types/faker/5.1.5:
+    dev: true
+    resolution:
+      integrity: sha512-2uEQFb7bsx68rqD4F8q95wZq6LTLOyexjv6BnvJogCO4jStkyc6IDEkODPQcWfovI6g6M3uPQ2/uD/oedJKkNw==
   /@types/http-assert/1.5.1:
     dev: true
     resolution:
@@ -1556,6 +1565,10 @@ packages:
       '@types/yauzl': 2.9.1
     resolution:
       integrity: sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==
+  /faker/5.2.0:
+    dev: false
+    resolution:
+      integrity: sha512-UlrF1NNRIdzEPtBcy5l8JTlnXQZdz+4pQc3v2TAVocW39nnczCNQ0g0CBKgPGISJPzA2DqJVN1kdr+FCRFdN5g==
   /fast-glob/3.2.4:
     dependencies:
       '@nodelib/fs.stat': 2.0.4
@@ -2798,6 +2811,23 @@ packages:
       node: ^10 || ^12 || >=14
     resolution:
       integrity: sha512-HM1NDNWLgglJPQQMNwvLxgH2KcrKZklKLi/xXYIOaqQB57p/pDWEJNS83PVICYsn1Dg/9C26TiejNr422/ePaQ==
+  /prettier-plugin-svelte/2.1.1_prettier@2.2.1+svelte@3.31.2:
+    dependencies:
+      prettier: 2.2.1
+      svelte: 3.31.2
+    dev: true
+    peerDependencies:
+      prettier: ^1.16.4 || ^2.0.0
+      svelte: ^3.2.0
+    resolution:
+      integrity: sha512-U0gRsdJtveyusHd86OUPD+lEVd13bHPPF/CZD/csKjz0Y+Cv4WbUy9x8tA5vaHFtf0tsu8Yb1MrfuhN3GH2gig==
+  /prettier/2.2.1:
+    dev: true
+    engines:
+      node: '>=10.13.0'
+    hasBin: true
+    resolution:
+      integrity: sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
   /pretty-format/26.6.2:
     dependencies:
       '@jest/types': 26.6.2
@@ -3381,6 +3411,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
+  /tinro/0.5.9:
+    dev: false
+    resolution:
+      integrity: sha512-mr41Bf/nUlG7WOM674/OOPuIRr+BEl+IpqqV24cDqSJl3p30weCEh8CsLrk5YFdpmL6TCx5irBLzFM0kStuSMQ==
   /to-regex-range/5.0.1:
     dependencies:
       is-number: 7.0.0
@@ -3617,7 +3651,12 @@ specifiers:
   '@snowpack/plugin-svelte': ^3.4.1
   '@snowpack/web-test-runner-plugin': ^0.1.5
   '@testing-library/svelte': ^3.0.3
+  '@types/faker': ^5.1.5
   '@web/test-runner': ^0.10.2
   chai: ^4.2.0
+  faker: ^5.2.0
+  prettier: ^2.2.1
+  prettier-plugin-svelte: ^2.1.1
   snowpack: ^2.18.5
   svelte: ^3.31.2
+  tinro: ^0.5.9

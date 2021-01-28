@@ -1,72 +1,48 @@
 <script>
-  import { fade } from 'svelte/transition';
-
-  import ZoomableContainer from '../../src/ZoomableContainer.svelte';
+  import { writable } from 'svelte/store';
   import { presets } from '../../src/transition';
-  import Items from './Items.svelte';
+  import { active, Route } from 'tinro';
+  import NestedFoods from './NestedFoods.svelte';
+  import ZoomGrid from './ZoomGrid.svelte';
 
-  const data = [
-    {
-      id: 'fruit',
-      title: 'Fruits',
-      children: [
-        {
-          id: 'apple',
-          title: 'Apple',
-          content: ['Apples are good!'],
-        },
-        {
-          id: 'banana',
-          title: 'Banana',
-          content: ['Bananas are yellow'],
-        },
-      ],
-    },
-    {
-      id: 'meat',
-      title: 'Meat',
-      children: [
-        {
-          id: 'beef',
-          title: 'Beef',
-          content: ['Moo'],
-        },
-        {
-          id: 'poultry',
-          title: 'Poultry',
-          children: [
-            {
-              id: 'chicken',
-              title: 'Chicken',
-              content: 'Bok bok bok',
-            },
-            {
-              id: 'turkey',
-              title: 'Turkey',
-              content: 'Baste often!',
-            },
-          ],
-        },
-        {
-          id: 'pork',
-          title: 'Pork',
-          content: 'Oink',
-        },
-      ],
-    },
-  ];
-
-  let zoomPresetId = 'crossfade';
+  let zoomPresetId = 'mergeSiblingsParallel';
   const zoomPresetIds = {
     crossfade: 'Crossfade',
     fade: 'Simple Fade',
     zoomExperimental: 'Experimental WIP Zoom',
+    mergeSiblingsParallel: 'Parallel Sibling Merge',
+    // mergeSiblingsSeries: 'Serial Sibling Merge',
   };
 
   $: zoomPreset = presets[zoomPresetId];
 
-  let zoomManager;
+  let zoomManager = writable(null);
 </script>
+
+<div id="app">
+  <header>
+    <label>
+      <span>Choose a Zoom Preset</span>
+      <select bind:value={zoomPresetId}>
+        {#each Object.entries(zoomPresetIds) as [id, label]}
+          <option value={id}>{label}</option>
+        {/each}
+      </select>
+    </label>
+
+    <nav>
+      <span>Examples:</span>
+      <a href="/foods" use:active>Foods</a>
+      <a href="/grid" use:active>Grid</a>
+    </nav>
+  </header>
+
+  <main>
+    <Route path="/foods"><NestedFoods {zoomPreset} /></Route>
+    <Route path="/grid"><ZoomGrid {zoomPreset} /></Route>
+    <Route path="/" redirect="/grid" />
+  </main>
+</div>
 
 <style>
   :global(body) {
@@ -76,13 +52,15 @@
 
   :global(*) {
     box-sizing: border-box;
+    position: relative;
   }
 
   #app {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     display: grid;
     grid-template-rows: 3rem 1fr;
+    font-family: sans-serif;
   }
 
   header {
@@ -93,8 +71,22 @@
     padding: 1rem 0.5rem;
   }
 
+  nav > a {
+    padding: 0.5rem 0.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #888;
+  }
+
+  nav > a:hover {
+    background-color: #ddd;
+  }
+
+  nav > :global(a.active) {
+    background-color: #eeeeee;
+  }
+
   main {
-    position: relative;
     place-self: stretch;
     margin: 0px 1rem 1rem;
   }
@@ -103,29 +95,3 @@
     margin: 5px 10px;
   }
 </style>
-
-<div id="app">
-
-  <header>
-    <h3 id="title">
-      {#if $zoomManager?.path.length === 0}
-        Click to zoom
-      {:else if $zoomManager?.title}{$zoomManager.title.join(' > ')}{/if}
-    </h3>
-
-    <label>
-      <span>Choose a Zoom Preset</span>
-      <select bind:value={zoomPresetId}>
-        {#each Object.entries(zoomPresetIds) as [id, label]}
-          <option value={id}>{label}</option>
-        {/each}
-      </select>
-    </label>
-  </header>
-
-  <main>
-    <ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>
-      <Items items={data} />
-    </ZoomableContainer>
-  </main>
-</div>

@@ -21,20 +21,40 @@ export const presets = {
     schedule: schedules.allTogether,
     defaultDuration: 200,
   },
+  /** Similar to the Svelte crossfade transition */
   crossfade: {
     detail: transitions.crossfade,
     selectedOverview: transitions.crossfade,
     otherOverviews: transitions.fade,
     schedule: schedules.allTogether,
     defaultDuration: 200,
-  }
-}
+  },
+  /** The sibling overviews fly into the clicked one */
+  mergeSiblingsParallel: {
+    detail: transitions.crossfade,
+    selectedOverview: transitions.crossfade,
+    otherOverviews: transitions.flyIntoSelected,
+    schedule: schedules.otherOverviewsParallelFirst,
+    defaultDuration: 1000,
+  },
+  /** The sibling overviews fly into the clicked one, one at a time */
+  // Disabled due to problems with getting all the transitions in different
+  // components running at the same time. Will need another approach to make this
+  // work.
+  // mergeSiblingsSeries: {
+  //   detail: transitions.crossfade,
+  //   selectedOverview: transitions.crossfade,
+  //   otherOverviews: transitions.flyIntoSelected,
+  //   schedule: schedules.otherOverviewsSeriesFirst,
+  //   defaultDuration: 2000,
+  // },
+};
 
-
-export function zoomTransition({ delay, duration, easing } = {}) {
-  delay = delay ?? 0;
-  duration = duration ?? preset.defaultDuration;
-
+export function zoomTransition({
+  delay: delayParam,
+  duration: durationParam,
+  easing,
+} = {}) {
   let sending = new Map();
   let receiving = new Map();
 
@@ -64,24 +84,24 @@ export function zoomTransition({ delay, duration, easing } = {}) {
         // are just the flying overviews, track them all.
         d.refCount++;
         if (params.isDetail) {
-          console.log(
-            `Registered detail ${params.key} for parent ${params.parent}`
-          );
+          // console.log(
+          //   `Registered detail ${params.key} for parent ${params.parent}`
+          // );
           d.detail = {
             id: params.key,
             rect,
             incoming: isIncoming,
           };
         } else {
-          console.log(
-            `Registered overview ${params.key} for parent ${params.parent}`
-          );
+          // console.log(
+          //   `Registered overview ${params.key} for parent ${params.parent}`
+          // );
           d.overviews.set(params.key, rect);
         }
       }
 
       return () => {
-        console.log(`Transitioning ${params.key}`);
+        // console.log(`Transitioning ${params.key}`);
         let rect = counterparts.get(params.key);
         counterparts.delete(params.key);
 
@@ -91,25 +111,43 @@ export function zoomTransition({ delay, duration, easing } = {}) {
         }
 
         let style;
+
+        let duration = durationParam ?? preset.defaultDuration;
+        let delay = delayParam ?? 0;
+        let start = 0;
+        let end = 1;
         if (params.parent !== undefined) {
           let d = siblingData.get(params.parent);
           if (d) {
+            let schedule = preset.schedule({
+              siblingData: d,
+              id: params.key,
+              isDetail: params.isDetail,
+            });
+
+            start = schedule.start;
+            end = schedule.end;
+
             if (d.detail && !rect) {
               let detailRect = d.detail.rect;
               let zoomingOverviewRect = d.overviews.get(d.detail.id);
-              console.log(`${params.key} is a sibling`, {
-                detailRect,
-                zoomingOverviewRect,
-              });
+              // console.log(`${params.key} is a sibling`, {
+              //   detailRect,
+              //   zoomingOverviewRect,
+              // });
 
               let executorParams = {
                 detailRect,
                 activeOverviewRect: zoomingOverviewRect,
                 otherRect: null,
                 node,
+                start,
+                end,
               };
 
-              style = preset.otherOverviews(executorParams);
+              style = zoomingOverviewRect
+                ? preset.otherOverviews(executorParams)
+                : transitions.none();
             }
 
             d.refCount--;
@@ -120,21 +158,23 @@ export function zoomTransition({ delay, duration, easing } = {}) {
         }
 
         if (!style) {
-          if(rect) {
+          if (rect) {
             let nodeRect = node.getBoundingClientRect();
             let executorParams = {
               detailRect: params.isDetail ? nodeRect : rect,
               activeOverviewRect: params.isDetail ? rect : nodeRect,
               otherRect: rect,
               node,
+              start,
+              end,
             };
             // This is one of the "active" elements
-            style = params.isDetail ?
-              preset.detail(executorParams) :
-              preset.selectedOverview(executorParams);
+            style = params.isDetail
+              ? preset.detail(executorParams)
+              : preset.selectedOverview(executorParams);
           } else {
             // There is no other element, so just do nothing.
-            style = none();
+            style = transitions.none();
           }
         }
 
@@ -151,6 +191,4 @@ export function zoomTransition({ delay, duration, easing } = {}) {
   return [transition(sending, receiving), transition(receiving, sending)];
 }
 
-export const [send, receive] = zoomTransition({
-  duration: 200,
-});
+export const [send, receive] = zoomTransition({});

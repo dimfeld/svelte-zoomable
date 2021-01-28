@@ -19,15 +19,17 @@
   setContext(zoomTransitionContext, transitionPresetStore);
 </script>
 
+<div>
+  <slot />
+</div>
+
 <style>
   div {
     position: relative;
+    /* Create a new containing block for position:fixed */
+    transform: translate(0px, 0px);
     width: 100%;
     height: 100%;
     overflow: hidden;
   }
 </style>
-
-<div>
-  <slot />
-</div>
