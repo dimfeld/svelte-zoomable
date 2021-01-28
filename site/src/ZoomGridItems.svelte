@@ -7,7 +7,7 @@
   {#each items as item}
     <div class="item">
       <Zoomable id={item.id} title={item.name}>
-        <div slot="overview">
+        <div class="overview" slot="overview">
           {item.name}
         </div>
 
@@ -26,8 +26,21 @@
 
 <style>
   .items {
+    position: relative;
     display: grid;
-    grid-template-columns: 3;
+    width: 14rem;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+  }
+
+  .overview {
+    height: 6rem;
+    width: 6rem;
+    border: 1px solid gray;
+    cursor: pointer;
+  }
+
+  .overview:hover {
+    background-color: lightgray;
   }
 </style>

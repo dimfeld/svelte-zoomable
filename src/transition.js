@@ -84,24 +84,24 @@ export function zoomTransition({
         // are just the flying overviews, track them all.
         d.refCount++;
         if (params.isDetail) {
-          console.log(
-            `Registered detail ${params.key} for parent ${params.parent}`
-          );
+          // console.log(
+          //   `Registered detail ${params.key} for parent ${params.parent}`
+          // );
           d.detail = {
             id: params.key,
             rect,
             incoming: isIncoming,
           };
         } else {
-          console.log(
-            `Registered overview ${params.key} for parent ${params.parent}`
-          );
+          // console.log(
+          //   `Registered overview ${params.key} for parent ${params.parent}`
+          // );
           d.overviews.set(params.key, rect);
         }
       }
 
       return () => {
-        console.log(`Transitioning ${params.key}`);
+        // console.log(`Transitioning ${params.key}`);
         let rect = counterparts.get(params.key);
         counterparts.delete(params.key);
 
@@ -131,10 +131,10 @@ export function zoomTransition({
             if (d.detail && !rect) {
               let detailRect = d.detail.rect;
               let zoomingOverviewRect = d.overviews.get(d.detail.id);
-              console.log(`${params.key} is a sibling`, {
-                detailRect,
-                zoomingOverviewRect,
-              });
+              // console.log(`${params.key} is a sibling`, {
+              //   detailRect,
+              //   zoomingOverviewRect,
+              // });
 
               let executorParams = {
                 detailRect,
@@ -145,7 +145,9 @@ export function zoomTransition({
                 end,
               };
 
-              style = preset.otherOverviews(executorParams);
+              style = zoomingOverviewRect
+                ? preset.otherOverviews(executorParams)
+                : transitions.none();
             }
 
             d.refCount--;
@@ -172,7 +174,7 @@ export function zoomTransition({
               : preset.selectedOverview(executorParams);
           } else {
             // There is no other element, so just do nothing.
-            style = none();
+            style = transitions.none();
           }
         }
 

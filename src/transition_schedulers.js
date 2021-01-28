@@ -19,7 +19,7 @@ export function otherOverviewsSeriesFirst({ siblingData, id, isDetail }) {
     // This is a detail or the overview swapping with a detail.
     let start = isDetail ? 1 - thisDuration : 0;
 
-    console.log({ id, start, thisDuration, detailId, isDetail });
+    // console.log({ id, start, thisDuration, detailId, isDetail });
     return {
       start,
       end: start + thisDuration,
@@ -41,7 +41,7 @@ export function otherOverviewsSeriesFirst({ siblingData, id, isDetail }) {
   let elementSequence = thisDuration * (thisIndex + 1);
   let start = elementSequence;
 
-  console.log({ id, start, thisDuration, thisIndex, detailId });
+  // console.log({ id, start, thisDuration, thisIndex, detailId });
 
   return {
     start,
@@ -55,7 +55,7 @@ export function otherOverviewsParallelFirst({ siblingData, id, isDetail }) {
   let detailId = siblingData.detail?.id;
   let start = isDetail || id !== detailId ? 0.5 : 0;
 
-  console.log({ id, isDetail, start });
+  // console.log({ id, isDetail, start });
 
   return {
     start,

@@ -1,5 +1,6 @@
 <script>
   import ZoomableContainer from '../../src/ZoomableContainer.svelte';
+  import Breadcrumbs from '../../src/Breadcrumbs.svelte';
   import Items from './Items.svelte';
 
   export let zoomPreset;
@@ -59,9 +60,7 @@
 </script>
 
 <h3 id="title">
-  {#if $zoomManager?.path.length === 0}
-    Click to zoom
-  {:else if $zoomManager?.title}{$zoomManager.title.join(' > ')}{/if}
+  <Breadcrumbs {zoomManager} />
 </h3>
 
 <ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>

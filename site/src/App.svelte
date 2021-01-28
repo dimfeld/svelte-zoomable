@@ -1,6 +1,7 @@
 <script>
+  import { writable } from 'svelte/store';
   import { presets } from '../../src/transition';
-  import { Route } from 'tinro';
+  import { active, Route } from 'tinro';
   import NestedFoods from './NestedFoods.svelte';
   import ZoomGrid from './ZoomGrid.svelte';
 
@@ -28,13 +29,18 @@
         {/each}
       </select>
     </label>
+
+    <nav>
+      <span>Examples:</span>
+      <a href="/foods" use:active>Foods</a>
+      <a href="/grid" use:active>Grid</a>
+    </nav>
   </header>
 
   <main>
-    <Route>
-      <Route path="/foods"><NestedFoods {zoomPreset} /></Route>
-      <Route fallback><ZoomGrid {zoomPreset} /></Route>
-    </Route>
+    <Route path="/foods"><NestedFoods {zoomPreset} /></Route>
+    <Route path="/grid"><ZoomGrid {zoomPreset} /></Route>
+    <Route path="/" redirect="/grid" />
   </main>
 </div>
 
@@ -46,13 +52,15 @@
 
   :global(*) {
     box-sizing: border-box;
+    position: relative;
   }
 
   #app {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     display: grid;
     grid-template-rows: 3rem 1fr;
+    font-family: sans-serif;
   }
 
   header {
@@ -63,8 +71,22 @@
     padding: 1rem 0.5rem;
   }
 
+  nav > a {
+    padding: 0.5rem 0.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #888;
+  }
+
+  nav > a:hover {
+    background-color: #ddd;
+  }
+
+  nav > :global(a.active) {
+    background-color: #eeeeee;
+  }
+
   main {
-    position: relative;
     place-self: stretch;
     margin: 0px 1rem 1rem;
   }

@@ -1,7 +1,8 @@
 <script>
   import ZoomableContainer from '../../src/ZoomableContainer.svelte';
+  import Breadcrumbs from '../../src/Breadcrumbs.svelte';
   import ZoomGridItems from './ZoomGridItems.svelte';
-  import * as faker from 'faker';
+  import faker from 'faker';
 
   export let zoomPreset;
   let zoomManager;
@@ -12,18 +13,18 @@
     return Math.round(Math.random() * (maxItems - minItems)) + minItems;
   }
 
-  let items = Array.from({ length: getNum() }, (i0) => {
+  let items = Array.from({ length: getNum() }, (_, i0) => {
     return {
       id: i0,
       name: faker.company.companyName(),
-      children: Array.from({ length: getNum() }, (i1) => {
+      children: Array.from({ length: getNum() }, (_, i1) => {
         return {
           id: i1,
-          name: faker.name.findName(),
-          children: Array.from({ length: getNum() }, (i2) => {
+          name: faker.address.country(),
+          children: Array.from({ length: getNum() }, (_, i2) => {
             return {
               id: i2,
-              name: faker.music.genre(),
+              name: faker.name.findName(),
               text: faker.lorem.paragraph(),
             };
           }),
@@ -34,11 +35,20 @@
 </script>
 
 <h3 id="title">
-  {#if $zoomManager?.path.length === 0}
-    Click to zoom
-  {:else if $zoomManager?.title}{$zoomManager.title.join(' > ')}{/if}
+  <Breadcrumbs {zoomManager} />
 </h3>
 
-<ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>
-  <ZoomGridItems {items} />
-</ZoomableContainer>
+<section>
+  <ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>
+    <ZoomGridItems {items} />
+  </ZoomableContainer>
+</section>
+
+<style>
+  section {
+    border: solid 1px lightgray;
+    width: 23rem;
+    height: 32rem;
+    padding: 1rem;
+  }
+</style>

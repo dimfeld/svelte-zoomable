@@ -8,7 +8,11 @@
   } from 'svelte';
   import { cubicIn, cubicOut } from 'svelte/easing';
   import { send, receive } from './transition';
-  import { zoomManagerContext, zoomParentContext, zoomTransitionContext } from './zoomManager';
+  import {
+    zoomManagerContext,
+    zoomParentContext,
+    zoomTransitionContext,
+  } from './zoomManager';
   import { style } from 'svelte-style-action';
 
   export let id;
@@ -75,9 +79,60 @@
   $: hide = $zoomManager.path.join('.') !== parent.id.join('.');
 </script>
 
+{#if zoomed}
+  <div
+    class="zoomed {detailClass}"
+    id={fullId.join('-') + '-zoomed'}
+    use:style={detailStyle}
+    in:receive|local={{
+      key: fullIdString,
+      parent: parentIdString,
+      isDetail: true,
+      easing: cubicIn,
+      preset: $transitionPreset,
+    }}
+    out:send|local={{
+      key: fullIdString,
+      parent: parentIdString,
+      isDetail: true,
+      easing: cubicOut,
+      preset: $transitionPreset,
+    }}
+  >
+    <slot
+      name="detail"
+      {active}
+      path={fullId}
+      title={fullTitle}
+      back={() => zoomManager.set(fullId.slice(0, -1))}
+    />
+  </div>
+{:else if !hide}
+  <div
+    class="overview {overviewClass}"
+    use:style={overviewStyle}
+    id={fullId.join('-') + '-overview'}
+    on:click={handleSummaryClick}
+    in:receive|local={{
+      key: fullIdString,
+      parent: parentIdString,
+      easing: cubicOut,
+      preset: $transitionPreset,
+    }}
+    out:send|local={{
+      key: fullIdString,
+      parent: parentIdString,
+      easing: cubicIn,
+      preset: $transitionPreset,
+    }}
+  >
+    <slot path={fullId} name="overview" zoom={() => zoomManager.set(fullId)} />
+  </div>
+{/if}
+
 <style>
   .zoomed {
-    position: absolute;
+    position: fixed;
     top: var(--zoomed-top, 0px);
     bottom: var(--zoomed-bottom, 0px);
     left: var(--zoomed-left, 0px);
@@ -92,29 +147,3 @@
     display: none;
   }
 </style>
-
-{#if zoomed}
-  <div
-    class="zoomed {detailClass}"
-    id={fullId.join('-') + '-zoomed'}
-    use:style={detailStyle}
-    in:receive|local={{ key: fullIdString, parent: parentIdString, isDetail: true, easing: cubicIn, preset: $transitionPreset }}
-    out:send|local={{ key: fullIdString, parent: parentIdString, isDetail: true, easing: cubicOut, preset: $transitionPreset }}>
-    <slot
-      name="detail"
-      {active}
-      path={fullId}
-      title={fullTitle}
-      back={() => zoomManager.set(fullId.slice(0, -1))} />
-  </div>
-{:else if !hide}
-  <div
-    class="overview {overviewClass}"
-    use:style={overviewStyle}
-    id={fullId.join('-') + '-overview'}
-    on:click={handleSummaryClick}
-    in:receive|local={{ key: fullIdString, parent: parentIdString, easing: cubicOut, preset: $transitionPreset }}
-    out:send|local={{ key: fullIdString, parent: parentIdString, easing: cubicIn, preset: $transitionPreset }}>
-    <slot path={fullId} name="overview" zoom={() => zoomManager.set(fullId)} />
-  </div>
-{/if}
