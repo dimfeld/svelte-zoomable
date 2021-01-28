@@ -1,83 +1,25 @@
 <script>
-  import { fade } from 'svelte/transition';
-
-  import ZoomableContainer from '../../src/ZoomableContainer.svelte';
   import { presets } from '../../src/transition';
-  import Items from './Items.svelte';
+  import { Route } from 'tinro';
+  import NestedFoods from './NestedFoods.svelte';
+  import ZoomGrid from './ZoomGrid.svelte';
 
-  const data = [
-    {
-      id: 'fruit',
-      title: 'Fruits',
-      children: [
-        {
-          id: 'apple',
-          title: 'Apple',
-          content: ['Apples are good!'],
-        },
-        {
-          id: 'banana',
-          title: 'Banana',
-          content: ['Bananas are yellow'],
-        },
-      ],
-    },
-    {
-      id: 'meat',
-      title: 'Meat',
-      children: [
-        {
-          id: 'beef',
-          title: 'Beef',
-          content: ['Moo'],
-        },
-        {
-          id: 'poultry',
-          title: 'Poultry',
-          children: [
-            {
-              id: 'chicken',
-              title: 'Chicken',
-              content: 'Bok bok bok',
-            },
-            {
-              id: 'turkey',
-              title: 'Turkey',
-              content: 'Baste often!',
-            },
-          ],
-        },
-        {
-          id: 'pork',
-          title: 'Pork',
-          content: 'Oink',
-        },
-      ],
-    },
-  ];
-
-  let zoomPresetId = 'mergeSiblingsSeries';
+  let zoomPresetId = 'mergeSiblingsParallel';
   const zoomPresetIds = {
     crossfade: 'Crossfade',
     fade: 'Simple Fade',
     zoomExperimental: 'Experimental WIP Zoom',
     mergeSiblingsParallel: 'Parallel Sibling Merge',
-    mergeSiblingsSeries: 'Serial Sibling Merge',
+    // mergeSiblingsSeries: 'Serial Sibling Merge',
   };
 
   $: zoomPreset = presets[zoomPresetId];
 
-  let zoomManager;
+  let zoomManager = writable(null);
 </script>
 
 <div id="app">
   <header>
-    <h3 id="title">
-      {#if $zoomManager?.path.length === 0}
-        Click to zoom
-      {:else if $zoomManager?.title}{$zoomManager.title.join(' > ')}{/if}
-    </h3>
-
     <label>
       <span>Choose a Zoom Preset</span>
       <select bind:value={zoomPresetId}>
@@ -89,9 +31,10 @@
   </header>
 
   <main>
-    <ZoomableContainer bind:zoomManager transitionPreset={zoomPreset}>
-      <Items items={data} />
-    </ZoomableContainer>
+    <Route>
+      <Route path="/foods"><NestedFoods {zoomPreset} /></Route>
+      <Route fallback><ZoomGrid {zoomPreset} /></Route>
+    </Route>
   </main>
 </div>
 
