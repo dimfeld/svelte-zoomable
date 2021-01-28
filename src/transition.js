@@ -38,13 +38,16 @@ export const presets = {
     defaultDuration: 1000,
   },
   /** The sibling overviews fly into the clicked one, one at a time */
-  mergeSiblingsSeries: {
-    detail: transitions.crossfade,
-    selectedOverview: transitions.crossfade,
-    otherOverviews: transitions.flyIntoSelected,
-    schedule: schedules.otherOverviewsSeriesFirst,
-    defaultDuration: 2000,
-  },
+  // Disabled due to problems with getting all the transitions in different
+  // components running at the same time. Will need another approach to make this
+  // work.
+  // mergeSiblingsSeries: {
+  //   detail: transitions.crossfade,
+  //   selectedOverview: transitions.crossfade,
+  //   otherOverviews: transitions.flyIntoSelected,
+  //   schedule: schedules.otherOverviewsSeriesFirst,
+  //   defaultDuration: 2000,
+  // },
 };
 
 export function zoomTransition({
